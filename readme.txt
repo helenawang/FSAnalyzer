@@ -1,0 +1,3 @@
+Compile and run "test.c" in linux, 
+input the device path or an image file(you can take "disk1.dd" as an example) that you want to interpret.
+Then you will see what this program can do...
