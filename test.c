@@ -16,7 +16,7 @@ char MBR[1024];//at most a sector(512 bytes)
 char VBR[1024];
 char cmd[200];
 char disk[30];
-char file_information[32][64];//at most 32 lines(1024 bytes) of allocated parts and  each 32 bytes one line
+char file_information[100][64];//at most 100 lines(1024 bytes) of allocated parts and  each 32 bytes one line
 int i,j,k,offset=0,count;
 
 void type_FAT(int LBA_address,int FatType)
@@ -162,15 +162,16 @@ void type_FAT(int LBA_address,int FatType)
 	return ;
 }
 
-int main()
+int main(int argc,char *argv[])
 {
 	system("clear");
 	int NumberOfPartition=0; // NumberOfPartition means the number of partition.
-	
+/*
 	//get the name of the target disk from standard input
 	printf("Please enter the path of the Device or the Disk image file:");
 	scanf("%s",disk);
-
+*/
+	sprintf(disk,"%s",argv[1]);
 	//use dd command to extract the MBR and save it in a file(without any extra characters and skip the first 446 bytes)
 	sprintf(cmd,"sudo dd if='%s' bs=1 skip=446 count=66 2> log | xxd -p -c 66> MBR.dat",disk);// test:change /dev/%s to /tmp/%s
 	system(cmd);
