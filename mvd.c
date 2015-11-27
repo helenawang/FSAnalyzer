@@ -56,12 +56,12 @@ void type_FAT(int LBA_address,int FatType)
 	printf("\n");
 	//find the root directory
 	int root_directory = LBA_address + size_in_sectors_of_reserved_area + number_of_FATS*size_in_sectors_of_one_FAT + sectors_per_cluster*(root_cluster-2);
-	sprintf(cmd,"sudo dd if='%s' bs=512 skip=%d count=2 2>> log | xxd -p -c 1024 > ROOT_Directory.dat",disk,root_directory);
+	sprintf(cmd,"sudo dd if='%s' bs=512 skip=%d count=2 2>> log | xxd -p -c 1024 > ./files/ROOT_Directory.dat",disk,root_directory);
 	system(cmd);
 
 	//read and store the file entries in the file_information array
 	printf("information about files:\n");
-	freopen("ROOT_Directory.dat","r",stdin);
+	freopen("./files/ROOT_Directory.dat","r",stdin);
 	i=0;
 	while(scanf("%c%c",&file_information[i][0],&file_information[i][1])!=EOF)
 	{
@@ -165,6 +165,7 @@ void type_FAT(int LBA_address,int FatType)
 int main(int argc,char *argv[])
 {
 	system("clear");
+	system("mkdir files");
 	int NumberOfPartition=0; // NumberOfPartition means the number of partition.
 /*
 	//get the name of the target disk from standard input
@@ -173,11 +174,11 @@ int main(int argc,char *argv[])
 */
 	sprintf(disk,"%s",argv[1]);
 	//use dd command to extract the MBR and save it in a file(without any extra characters and skip the first 446 bytes)
-	sprintf(cmd,"sudo dd if='%s' bs=1 skip=446 count=66 2> log | xxd -p -c 66> MBR.dat",disk);// test:change /dev/%s to /tmp/%s
+	sprintf(cmd,"sudo dd if='%s' bs=1 skip=446 count=66 2> log | xxd -p -c 66> ./files/MBR.dat",disk);// test:change /dev/%s to /tmp/%s
 	system(cmd);
 
 	//read the file and store MBR in the MBR array
-	freopen("MBR.dat","r",stdin);
+	freopen("./files/MBR.dat","r",stdin);
 	i=0;
 	while(scanf("%c",&MBR[i]) != EOF )
 		i++;	
@@ -212,11 +213,11 @@ int main(int argc,char *argv[])
 	for(int cur_partition=0;cur_partition<NumberOfPartition;cur_partition++){
 		//use dd command to extract the VBR and save it in another file
 		// test:change /dev/%s to /tmp/%s
-		sprintf(cmd,"sudo dd if='%s' bs=512 skip=%d count=1 2>>log| xxd -p -c 512 > VBR%d.dat",disk,LBA_address[cur_partition],cur_partition+1);
+		sprintf(cmd,"sudo dd if='%s' bs=512 skip=%d count=1 2>>log| xxd -p -c 512 > ./files/VBR%d.dat",disk,LBA_address[cur_partition],cur_partition+1);
 		system(cmd);
 		
 		//read the file and store VBR in the VBR array
-		sprintf(VBR_dat,"VBR%d.dat",cur_partition+1);
+		sprintf(VBR_dat,"./files/VBR%d.dat",cur_partition+1);
 		freopen(VBR_dat,"r",stdin);
 		i=0;
 		while(scanf("%c",&VBR[i]) != EOF )
