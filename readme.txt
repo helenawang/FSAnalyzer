@@ -1,3 +1,5 @@
-Compile and run "test.c" in linux, 
-input the device path or an image file(you can take "disk1.dd" as an example) that you want to interpret.
+This is a program to interpret the content of MBR,VBR and root directory.
+(only support DOS partition(MBR), and FAT file system now)
+
+Compile "mvd.c" in linux, then run ./mvd <disk or image name>
 Then you will see what this program can do...
