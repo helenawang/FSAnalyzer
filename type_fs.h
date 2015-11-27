@@ -4,8 +4,13 @@ extern char cmd[200];
 extern char disk[30];
 extern char file_information[100][64];//at most 100 lines(1024 bytes) of allocated parts and  each 32 bytes one line
 extern int i,j,k,offset,count;
-extern int NumberOfPartition; // NumberOfPartition means the number of partition.
+extern int par_num; // par_num means the number of partition.
+extern int partition_type[4];	
+extern int LBA_address[4];
+extern int size_in_sectors[4];
 
+extern void mbr(int);
+extern void vbr();
 
 void type_FAT(int LBA_address,int FatType)
 {
@@ -44,7 +49,8 @@ void type_FAT(int LBA_address,int FatType)
 	printf("\n");
 	//find the root directory
 	int root_directory = LBA_address + size_in_sectors_of_reserved_area + number_of_FATS*size_in_sectors_of_one_FAT + sectors_per_cluster*(root_cluster-2);
-	sprintf(cmd,"sudo dd if='%s' bs=512 skip=%d count=2 2>> log | xxd -p -c 1024 > ./files/ROOT_Directory.dat",disk,root_directory);
+	sprintf(cmd,"sudo dd if='%s' bs=512 skip=%d count=2 2>> log | xxd -p -c 1024 > ./files/ROOT_Directory.dat",
+		disk,root_directory);
 	system(cmd);
 
 	//read and store the file entries in the file_information array
@@ -135,12 +141,7 @@ void type_FAT(int LBA_address,int FatType)
 			size_of_file= get_info(file_information[i+number_of_entries],offset+28,offset+31);
 			i+=number_of_entries;
 		}
-		/*
-		printf("File #%d==================\n", file_number);
-		printf("file attribute description: %s\n", file_attribute_description);
-		printf("file name in ASCII: %s\n",file_name);
-		printf("size of file in bytes: %d\n", size_of_file);
-		*/
+		
 		printf("%d",file_number);
 		printf("%15d",size_of_file);
 		printf("%24s",file_attribute_description);
@@ -152,37 +153,5 @@ void type_FAT(int LBA_address,int FatType)
 
 void type_EXTEND(int LBA_addr)
 {
-	sprintf(cmd,"sudo dd if='%s' bs=512 skip=%d count=1 2> log | xxd -p -c 512> ./files/MBR_e1.dat",disk,LBA_addr);
-	system(cmd);
-
-	//read the file and store MBR in the MBR array
-	freopen("./files/MBR_e1.dat","r",stdin);
-	i=0;
-	while(scanf("%c",&MBR[i]) != EOF )
-		i++;	
-
-	//check the "aa55" signature
-	if(MBR[1020] != '5' || MBR[1021] != '5' || MBR[1022] != 'a' || MBR[1023] != 'a'){
-		printf("ERROR!\n%s is invalid!Please check the Log file for more information.\n",disk);
-		exit(0);
-	}
-	
-	offset=0;
-	int partition_type[4]={0,0,0,0};	
-	int LBA_address[4]={0,0,0,0};
-	int size_in_sectors[4]={0,0,0,0};
-	printf("==================MBR_e1==================\n");
-	//extract information from specific bytes and print them
-	for(NumberOfPartition=0;NumberOfPartition<4;NumberOfPartition++){
-		offset=446+NumberOfPartition*16;
-		partition_type[NumberOfPartition] = get_info(MBR,offset+4,offset+4);
-		LBA_address[NumberOfPartition] = get_info(MBR,offset+8,offset+11);
-		size_in_sectors[NumberOfPartition] = get_info(MBR,offset+12,offset+15);
-		if(LBA_address[NumberOfPartition] == 0) break;
-		printf("information about partition %d:\n",NumberOfPartition+1);
-		printf("partition type: %s\n",type_judge(partition_type[NumberOfPartition]));
-		printf("starting LBA address: %d\n", LBA_address[NumberOfPartition]);
-		printf("size in sectors: %d\n",size_in_sectors[NumberOfPartition]);
-		printf("\n");
-	}
+	mbr(LBA_addr);
 }

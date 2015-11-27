@@ -10,54 +10,31 @@
 #include <stdio.h>
 #include "mvd.h"
 
+void mbr(int );
+
 int main(int argc,char *argv[])
 {
 	system("clear");
 	system("mkdir files");
 
 	sprintf(disk,"%s",argv[1]);
-	//use dd command to extract the MBR and save it in a file(without any extra characters and skip the first 446 bytes)
-	sprintf(cmd,"sudo dd if='%s' bs=1 skip=446 count=66 2> log | xxd -p -c 66> ./files/MBR.dat",disk);// test:change /dev/%s to /tmp/%s
-	system(cmd);
-
-	//read the file and store MBR in the MBR array
-	freopen("./files/MBR.dat","r",stdin);
-	i=0;
-	while(scanf("%c",&MBR[i]) != EOF )
-		i++;	
-
-	//check the "aa55" signature
-	if(MBR[128] != '5' || MBR[129] != '5' || MBR[130] != 'a' || MBR[131] != 'a'){
-		printf("ERROR!\n%s is invalid!Please check the Log file for more information.\n",disk);
-		exit(0);
-	}
 	
-	offset=0;
-	int partition_type[4]={0,0,0,0};	
-	int LBA_address[4]={0,0,0,0};
-	int size_in_sectors[4]={0,0,0,0};
-	printf("==================MBR==================\n");
-	//extract information from specific bytes and print them
-	for(NumberOfPartition=0;NumberOfPartition<4;NumberOfPartition++){
-		offset=NumberOfPartition*16;
-		partition_type[NumberOfPartition] = get_info(MBR,offset+4,offset+4);
-		LBA_address[NumberOfPartition] = get_info(MBR,offset+8,offset+11);
-		size_in_sectors[NumberOfPartition] = get_info(MBR,offset+12,offset+15);
-		if(LBA_address[NumberOfPartition] == 0) break;
-		printf("information about partition %d:\n",NumberOfPartition+1);
-		printf("partition type: %s\n",type_judge(partition_type[NumberOfPartition]));
-		printf("starting LBA address: %d\n", LBA_address[NumberOfPartition]);
-		printf("size in sectors: %d\n",size_in_sectors[NumberOfPartition]);
-		printf("\n");
-	}
+	mbr(0);
 	
+	printf("\t\tS.I.X. 2015 All Rights Reserved.\n\n");
+	return 0;
+}
+
+void vbr()
+{
 	char VBR_dat[10];
 	int cur_partition;
 	printf("==================VBR==================\n");
-	for(cur_partition=0;cur_partition<NumberOfPartition;cur_partition++){
+	for(cur_partition=0;cur_partition<par_num;cur_partition++){
 		//use dd command to extract the VBR and save it in another file
 		// test:change /dev/%s to /tmp/%s
-		sprintf(cmd,"sudo dd if='%s' bs=512 skip=%d count=1 2>>log| xxd -p -c 512 > ./files/VBR%d.dat",disk,LBA_address[cur_partition],cur_partition+1);
+		sprintf(cmd,"sudo dd if='%s' bs=512 skip=%d count=1 2>>log| xxd -p -c 512 > ./files/VBR%d.dat",
+			disk,LBA_address[cur_partition],cur_partition+1);
 		system(cmd);
 		
 		//read the file and store VBR in the VBR array
@@ -88,7 +65,40 @@ int main(int argc,char *argv[])
 		}
 	printf("\n");
 	}
-	sprintf(cmd,"sudo dd if='%s' bs=512 skip=%d count=1 2>>log| xxd -p -c 512 > ./files/VBR%d.dat",disk,LBA_address[cur_partition],cur_partition+1);
-	printf("\t\tS.I.X. 2015 All Rights Reserved.\n\n");
-	return 0;
+	
+}
+
+void mbr(int skip)
+{
+	//use dd command to extract the MBR and save it in a file(without any extra characters and skip the first 446 bytes)
+	sprintf(cmd,"sudo dd if='%s' bs=512 skip=%d count=1 2> log | xxd -p -c 512> ./files/MBR.dat",disk,skip);// test:change /dev/%s to /tmp/%s
+	system(cmd);
+	//read the file and store MBR in the MBR array
+	freopen("./files/MBR.dat","r",stdin);
+	i=0;
+	while(scanf("%c",&MBR[i]) != EOF )
+		i++;	
+
+	//check the "aa55" signature
+	if(MBR[1020] != '5' || MBR[1021] != '5' || MBR[1022] != 'a' || MBR[1023] != 'a'){
+		printf("ERROR!\n%s is invalid!Please check the Log file for more information.\n",disk);
+		exit(0);
+	}
+	
+	offset=0;
+	printf("==================MBR==================\n");
+	printf("LBA address     size in sectors      partition type\n");
+
+	//extract information from specific bytes and print them
+	for(par_num=0;par_num<4;par_num++){
+		offset=446+par_num*16;
+		partition_type[par_num] = get_info(MBR,offset+4,offset+4);
+		LBA_address[par_num] =skip+ get_info(MBR,offset+8,offset+11);
+		size_in_sectors[par_num] = get_info(MBR,offset+12,offset+15);
+		if(LBA_address[par_num] == 0) break;
+		// printf("information about partition %d:\n",par_num+1);
+		printf("%11d          %10d      %s\n",
+			LBA_address[par_num],size_in_sectors[par_num],type_judge(partition_type[par_num]));
+	}
+	vbr();
 }
