@@ -1,13 +1,4 @@
-/******************************************************************************
-  Copyright:2015,S.I.X. All Rights Reserved.
-  File name: test.c
-  Description: extract and analyse the information of a disk(or a disk image)
-	       such as MBR,VBR and the root direcotry
-  Author: S.I.X.()
-  Version:4.0
-  Date:2015.08.20 14:13(UTC+2)
-*******************************************************************************/
-#include <stdio.h>
+
 #include "mvd.h"
 
 void mbr(int );

@@ -4,7 +4,7 @@
 //parameter: an integer represents type value 
 //return: a description of the corresponding type in string
 char ans[30]="";
-char* type_judge(int type)
+char* type_judge(uint8_t type)
 {
 	switch(type)
 	{

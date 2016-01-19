@@ -1,5 +1,11 @@
-This is a program to interpret the content of MBR,VBR and root directory.
+This is a program to interpret the content of MBR,VBR and root directory,
 (only support DOS partition(MBR), and FAT file system now)
+
+There are two versions of implementation, 
+one is to use "xxd" command then read ascii, which was what I originally did; 
+and the other is to read binary files directorly using file access function(fread,fseek...) in C.
+The two versions share the same "type_judge.h" file, which are put outside folders.
+
 
 Compile "mvd.c" in linux, then run ./mvd <disk or image name>
 Then you will see what this program can do...
