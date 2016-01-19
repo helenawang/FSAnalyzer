@@ -4,7 +4,23 @@
 //parameter: an integer represents type value 
 //return: a description of the corresponding type in string
 char ans[30]="";
-char* type_judge(uint8_t type)
+char* file_type(uint8_t type){
+	switch(type)
+	{
+		case 0x01: strcpy(ans,"Read only"); break;
+		case 0x02: strcpy(ans,"Hidden file"); break;
+		case 0x04: strcpy(ans,"System file"); break;
+		case 0x08: strcpy(ans,"Volume label"); break;
+		case 0x0f: strcpy(ans,"Long file name"); break;
+		case 0x10: strcpy(ans,"Directory"); break;
+		case 0x20: strcpy(ans,"Archive"); break;
+		case 0x16: strcpy(ans,"Special system file"); break;
+		default: strcpy(ans,"No match");
+	}
+	return ans;
+}
+
+char* fs_type(uint8_t type)
 {
 	switch(type)
 	{

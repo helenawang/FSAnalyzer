@@ -7,5 +7,5 @@ and the other is to read binary files directorly using file access function(frea
 The two versions share the same "type_judge.h" file, which are put outside folders.
 
 
-Compile "mvd.c" in linux, then run ./mvd <disk or image name>
+Compile "mvd.c"(or parse.c) in linux, then run ./mvd <disk or image name>
 Then you will see what this program can do...

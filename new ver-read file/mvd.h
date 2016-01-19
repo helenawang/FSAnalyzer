@@ -1,5 +1,13 @@
 typedef uint32_t LBA;//Logical Block Address, the LBA of a data field represents its offset in the image.
 
+typedef struct File
+{
+	char name[12];
+	uint8_t attr;
+	uint16_t start_clus;
+	uint32_t size;
+}File;
+
 typedef struct Directory
 {
 	LBA offset;
