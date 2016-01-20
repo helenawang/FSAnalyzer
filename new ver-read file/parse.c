@@ -9,7 +9,8 @@ unsigned i=0, j=0;
 Image image;
 FAT_VBR_35 vbr[4];
 Directory dir[10];
-File file;
+Dir_entry dir_entry;
+uint16_t fat16[100000];
 
 int main(int argc,char *argv[]){
 	FILE* fp;
@@ -66,6 +67,8 @@ int main(int argc,char *argv[]){
 		
 		//parse each partition
 		for(i=0;i<4;i++){
+			if(image.mbr.par_entry[i].type==0) continue; //empty volume
+
 			vbr[i].offset = image.mbr.offset + image.mbr.par_entry[i].start_addr;
 
 			sprintf(cmd,"sudo dd if='%s' of=VBR%d.dat skip=%d count=1 2>>log",image.name, i, vbr[i].offset);
@@ -100,27 +103,39 @@ int main(int argc,char *argv[]){
 			sprintf(cmd, "sudo dd if=%s of=dir%d.dat skip=%d count=1 2>>log",image.name, i, dir[i].offset);
 			system(cmd); //make a copy of root directory
 
+			sprintf(cmd,"sudo dd if=%s of=fat.dat skip=%d count=%d 2>>log",image.name, vbr[i].offset+vbr[i].resArea_size,vbr[i].FAT_num);
+			system(cmd); //make a copy of fat
+			for(j=0;j<sizeof(fat16);j++){ //read fat in fat16 array
+				fat16[i]=get_16(fp,(long)j);
+			}
+
 			//parse root directory
 			fseek(fp,dir[i].offset*512L, SEEK_SET);
-			for(j=1;j<5;j++){
-				file.attr = get_8(fp,11L);
-				file.start_clus = get_16(fp,26L);
-				file.size = get_32(fp,28L);
-				get_chars(fp,0L,10L, file.name);
+			do{
+				dir_entry.attr = get_8(fp,11L);
+				dir_entry.start_clus = get_16(fp,26L);
+				dir_entry.size = get_32(fp,28L);
+				get_chars(fp,0L,10L, dir_entry.name);
 				//printf("ftell--%ld\n",ftell(fp));
 				fseek(fp,32,SEEK_CUR); //turn to the next dir_entry
 
-				if(file.name[0]==0x00) break; //unallocated entry
-				if(file.name[0]==0xe5) continue; //deleted entry
-				//if(file.attr == 0x0f) continue; //long file name entry
+				if(dir_entry.name[0]==0x00) break; //unallocated entry
+				if(dir_entry.name[0]==0xe5) continue; //deleted entry
+				//if(dir_entry.attr == 0x0f) continue; //long dir_entry name entry
 
-				printf("******************file%d***************\n", j);
-				printf("file name: %s\n",file.name);
-				printf("file attribute: %s\n", file_type(file.attr));
-				printf("the first cluster: %d\n", file.start_clus);
-				printf("file size: %d\n", file.size);
+				printf("******************dir_entry***************\n");
+				printf("dir_entry name: %s\n",dir_entry.name);
+				printf("dir_entry attribute: %s\n", file_type(dir_entry.attr));
+				printf("the cluster chain: %d --> ",dir_entry.start_clus);
+				uint16_t clus=fat16[dir_entry.start_clus]; //check the fat for the next cluster
+				while(clus<0xfff7 && clus!=0){ //read the cluster chain from fat
+					printf("%d -->", clus);
+					clus = fat16[clus];
+				}
+				printf("EOF\n");
+				printf("dir_entry size: %d\n", dir_entry.size);
 				
-			};
+			}while(dir_entry.name[0]!=0x00);
 			
 		}
 
