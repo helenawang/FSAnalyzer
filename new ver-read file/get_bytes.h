@@ -24,10 +24,10 @@ uint8_t get_8(FILE* fp, long offset)
 	fseek(fp,-(offset+sizeof(uint8_t)),SEEK_CUR);
 	return res;
 }
-void get_chars(FILE* fp, long offset, uint32_t len, char* str)
+void get_chars(FILE* fp, long offset, long len, char* str)
 {
 	fseek(fp,offset,SEEK_CUR);
 	fread(str,sizeof(char),len - offset + 1,fp);
-	fseek(fp,-len,SEEK_CUR);
+	fseek(fp,-(len+1),SEEK_CUR);
 	return ;
 }

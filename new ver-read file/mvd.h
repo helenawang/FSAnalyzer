@@ -2,7 +2,7 @@ typedef uint32_t LBA;//Logical Block Address, the LBA of a data field represents
 
 typedef struct File
 {
-	char name[12];
+	char name[15];
 	uint8_t attr;
 	uint16_t start_clus;
 	uint32_t size;

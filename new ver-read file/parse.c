@@ -84,7 +84,7 @@ int main(int argc,char *argv[]){
 			vbr[i].resArea_size = get_16(fp,14L);
 			vbr[i].FAT_num = get_8(fp,16L);
 			vbr[i].FAT_size = get_16(fp,22L);
-			get_chars(fp,3L,10,vbr[i].OEM_name);
+			get_chars(fp,3L,10L,vbr[i].OEM_name);
 
 			printf("***********************partition %d *******************\n", i);
 			printf("OEM name: %s\n", vbr[i].OEM_name);
@@ -102,18 +102,24 @@ int main(int argc,char *argv[]){
 
 			//parse root directory
 			fseek(fp,dir[i].offset*512L, SEEK_SET);
-			for(j=0;j<5; j++){
+			for(j=1;j<5;j++){
 				file.attr = get_8(fp,11L);
 				file.start_clus = get_16(fp,26L);
 				file.size = get_32(fp,28L);
-				get_chars(fp,0L,10, file.name);
+				get_chars(fp,0L,10L, file.name);
+				//printf("ftell--%ld\n",ftell(fp));
+				fseek(fp,32,SEEK_CUR); //turn to the next dir_entry
 
+				if(file.name[0]==0x00) break; //unallocated entry
+				if(file.name[0]==0xe5) continue; //deleted entry
+				//if(file.attr == 0x0f) continue; //long file name entry
+
+				printf("******************file%d***************\n", j);
 				printf("file name: %s\n",file.name);
 				printf("file attribute: %s\n", file_type(file.attr));
 				printf("the first cluster: %d\n", file.start_clus);
 				printf("file size: %d\n", file.size);
-
-				fseek(fp,32,SEEK_CUR); //turn to the next dir_entry
+				
 			};
 			
 		}
