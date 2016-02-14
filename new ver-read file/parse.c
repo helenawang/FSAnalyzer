@@ -10,10 +10,10 @@ Image image;
 FAT_VBR_35 vbr[4];
 Directory dir[10];
 Dir_entry dir_entry;
-uint16_t fat16[100000];
+uint16_t fat16[512];
 
 int main(int argc,char *argv[]){
-	FILE* fp;
+	FILE *fp, *fp2;
 	char cmd[100];
 
 	if(argc==1){
@@ -105,8 +105,10 @@ int main(int argc,char *argv[]){
 
 			sprintf(cmd,"sudo dd if=%s of=fat.dat skip=%d count=%d 2>>log",image.name, vbr[i].offset+vbr[i].resArea_size,vbr[i].FAT_num);
 			system(cmd); //make a copy of fat
-			for(j=0;j<sizeof(fat16);j++){ //read fat in fat16 array
-				fat16[i]=get_16(fp,(long)j);
+			fseek(fp, (vbr[i].offset+vbr[i].resArea_size)*512L, SEEK_SET);
+			for(j=0;j<256;j++){ //read fat in fat16 array
+				fat16[j]=get_16(fp,(long)(j*2));
+				printf("fat[%d]=%d\n",i,fat16[i]);
 			}
 
 			//parse root directory
@@ -121,7 +123,7 @@ int main(int argc,char *argv[]){
 
 				if(dir_entry.name[0]==0x00) break; //unallocated entry
 				if(dir_entry.name[0]==0xe5) continue; //deleted entry
-				//if(dir_entry.attr == 0x0f) continue; //long dir_entry name entry
+				if(dir_entry.attr == 0x0f) continue; //long dir_entry name entry
 
 				printf("******************dir_entry***************\n");
 				printf("dir_entry name: %s\n",dir_entry.name);
