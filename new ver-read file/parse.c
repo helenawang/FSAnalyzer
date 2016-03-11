@@ -87,6 +87,11 @@ int main(int argc,char *argv[]){
 			vbr[i].resArea_size = get_16(fp,14L);
 			vbr[i].FAT_num = get_8(fp,16L);
 			vbr[i].FAT_size = get_16(fp,22L);
+			if(vbr[i].FAT_size == 0){
+				vbr[i].FAT_size = get_32(fp, 36L); //FAT32
+				dir[i].offset = vbr[i].offset + vbr[i].resArea_size + vbr[i].FAT_size * vbr[i].FAT_num + (get_32(fp, 44L) - 2) * vbr[i].spc;
+			}else 
+				dir[i].offset = vbr[i].offset + vbr[i].resArea_size + vbr[i].FAT_size * vbr[i].FAT_num;
 			get_chars(fp,3L,10L,vbr[i].OEM_name);
 
 			printf("***********************partition %d *******************\n", i);
@@ -97,7 +102,6 @@ int main(int argc,char *argv[]){
 			printf("number of FATs: %d\n", vbr[i].FAT_num);
 			printf("size of each FAT in sectors: %d\n", vbr[i].FAT_size);
 
-			dir[i].offset = vbr[i].offset + vbr[i].resArea_size + vbr[i].FAT_size * vbr[i].FAT_num;
 			printf("cluster of root Directory: %d\n", dir[i].offset);
 
 			sprintf(cmd, "sudo dd if=%s of=dir%d.dat skip=%d count=1 2>>log",image.name, i, dir[i].offset);
@@ -108,7 +112,7 @@ int main(int argc,char *argv[]){
 			fseek(fp, (vbr[i].offset+vbr[i].resArea_size)*512L, SEEK_SET);
 			for(j=0;j<256;j++){ //read fat in fat16 array
 				fat16[j]=get_16(fp,(long)(j*2));
-				printf("fat[%d]=%d\n",i,fat16[i]);
+//				printf("fat[%d]=%d\n",i,fat16[i]);
 			}
 
 			//parse root directory
