@@ -10,5 +10,5 @@
 #include <stdlib.h>
 #include <string.h>
 #include "data_structures.h"
-#include "get_bytes.c"
-#include "type_judge.c"
+#include "get_bytes.h"
+#include "type_judge.h"

@@ -1,12 +1,11 @@
 //============================================================================
-// Name        : analyze.c
+// Name        : main.c
 // Author      : Helena Wang
 // Version     : 1.0.0
 // Copyright   : Apache v2
 // Description : main program to analyze a specific file system(support FAT now)
 //============================================================================
 #include "includes.h"
-
 unsigned i=0, j=0;
 Image image;
 FAT_VBR_35 vbr[4];
