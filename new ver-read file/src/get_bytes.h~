@@ -1,3 +1,11 @@
+//============================================================================
+// Name        : get_bytes.cpp
+// Author      : Helena Wang
+// Version     : 1.0.0
+// Copyright   : Apache v2
+// Description : Encapsulations of fread to get different bytes in C, Ansi-style
+//============================================================================
+
 uint32_t get_32(FILE* fp, long offset)
 {
 	fseek(fp,offset,SEEK_CUR);

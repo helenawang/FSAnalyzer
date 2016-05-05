@@ -1,3 +1,10 @@
+//============================================================================
+// Name        : data_structures.c
+// Author      : Helena Wang
+// Version     : 1.0.0
+// Copyright   : Apache v2
+// Description : declarations of data structures used in the main program
+//============================================================================
 typedef uint32_t LBA;//Logical Block Address, the LBA of a data field represents its offset in the image.
 
 typedef struct File
