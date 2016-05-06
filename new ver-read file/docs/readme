@@ -1,0 +1,7 @@
+Operating Systems: Ubuntu 14.04
+Compiler: g++ (Ubuntu 4.8.2-19ubuntu1) 4.8.2
+
+Please following this instructions to make and run this program:
+1. enter the "src" directory, use "make" command
+2. enter the "bin" directory, you will see the binary file named "main" if there's not any error in compiling.
+3. use this command "./main <disk or image file name>" to run this program. Some metadata of your file system will be shown if it has the valid format.
