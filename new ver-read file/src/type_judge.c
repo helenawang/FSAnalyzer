@@ -6,6 +6,7 @@
 // Description : return corresponding description of a type id
 // Reference   : File System Forensic Anylasis P89-91
 //============================================================================
+#include "includes.h"
 char ans[30]="";
 char* file_type(uint8_t type){
 	switch(type)

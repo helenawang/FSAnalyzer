@@ -5,7 +5,7 @@
 // Copyright   : Apache v2
 // Description : Encapsulations of fread to get different bytes in C, Ansi-style
 //============================================================================
-
+#include "includes.h"
 uint32_t get_32(FILE* fp, long offset)
 {
 	fseek(fp,offset,SEEK_CUR);
